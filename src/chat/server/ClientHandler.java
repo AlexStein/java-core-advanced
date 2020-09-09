@@ -35,8 +35,13 @@ public class ClientHandler {
                             if (newNick != null) {
                                 nickname = newNick;
                                 sendMsg("/authok " + nickname);
+
+                                String msg = "Клиент " + nickname + " подключился";
+
+                                System.out.println(msg);
+                                server.broadcastServerMsg(msg);
+
                                 server.subscribe(this);
-                                System.out.println("Клиент " + nickname + " подключился");
                                 break;
                             } else {
                                 sendMsg("Неверный логин / пароль");
@@ -53,13 +58,29 @@ public class ClientHandler {
                             break;
                         }
 
+                        if (str.startsWith("/to ")) {
+                            String[] token = str.split("\\s", 3);
+
+                            String targetNickname = token[1];
+                            String msg = token[2];
+
+                            server.privateMsg(this, targetNickname, msg);
+
+                            continue;
+                        }
+
                         server.broadcastMsg(this, str);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
-                    System.out.println("Клиент отключился");
                     server.unsubscribe(this);
+
+                    String msg = "Клиент " + nickname + " отключился";
+
+                    System.out.println(msg);
+                    server.broadcastServerMsg(msg);
+
                     try {
                         socket.close();
                     } catch (IOException e) {
