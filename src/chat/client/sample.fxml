@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.PasswordField?>
-<VBox fx:controller="client.Controller"
+<VBox fx:controller="chat.client.Controller"
       xmlns:fx="http://javafx.com/fxml" alignment="center">
 
     <HBox fx:id="authPanel" visible="true" managed="true">
