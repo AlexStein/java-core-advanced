@@ -3,14 +3,15 @@ package chat.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
-import java.util.Vector;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Server {
     private List<ClientHandler> clients;
     private AuthService authService;
 
-    private final int PORT = 8189;
+    private int PORT = 8189;
     ServerSocket server = null;
     Socket socket = null;
 
@@ -51,7 +52,8 @@ public class Server {
      * @param msg    Текст сообщения
      */
     public void broadcastMsg(ClientHandler sender, String msg) {
-        String message = String.format("%s : %s", sender.getNickname(), msg);
+        SimpleDateFormat formater = new SimpleDateFormat("HH:mm:ss");
+        String message = String.format(" %s %s : %s", formater.format(new Date()), sender.getNickname(), msg);
         for (ClientHandler c : clients) {
             if (!c.equals(sender)) {
                 c.sendMsg(message);
@@ -100,12 +102,37 @@ public class Server {
         sender.sendMsg(message);
     }
 
+
     public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
+        broadcastClientList();
     }
 
     public void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
+        broadcastClientList();
+    }
+
+
+    public boolean isLoginAuthenticated(String login) {
+        for (ClientHandler c : clients) {
+            if (c.getLogin().equals(login)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void broadcastClientList() {
+        StringBuilder sb = new StringBuilder("/clientlist ");
+        for (ClientHandler c : clients) {
+            sb.append(c.getNickname()).append(" ");
+        }
+
+        String msg = sb.toString();
+        for (ClientHandler c : clients) {
+            c.sendMsg(msg);
+        }
     }
 
 }
